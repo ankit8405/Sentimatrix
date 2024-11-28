@@ -1,106 +1,143 @@
 # Sentimatrix
 
-A sentiment analysis application with a WPF frontend and Python backend.
+A real-time email sentiment analysis application with a WPF desktop client and .NET Core backend. The application processes emails and analyzes their sentiment using advanced natural language processing.
 
-## Project Structure
+## Features
 
-```
-Sentimatrix/
-├── frontend/    # WPF Application
-└── backend/     # Python Backend Server
-```
+- Real-time email sentiment analysis
+- Desktop client with modern WPF interface
+- SignalR for real-time updates
+- Swagger API documentation
+- Email content processing and analysis
+
+## Tech Stack
+
+### Backend (.NET 6.0)
+- ASP.NET Core Web API
+- SignalR for real-time communication
+- Swagger/OpenAPI for API documentation
+- HtmlAgilityPack for HTML processing
+- Newtonsoft.Json for JSON handling
+
+### Frontend (WPF .NET 6.0)
+- WPF (Windows Presentation Foundation)
+- SignalR Client for real-time updates
+- Modern UI with sidebar design
+- Newtonsoft.Json for JSON handling
 
 ## Prerequisites
 
-### Frontend Requirements
-- Visual Studio 2019 or later
-- .NET Framework 4.7.2 or later
-- Windows OS
-
-### Backend Requirements
-- Python 3.8 or later
-- pip (Python package manager)
+- .NET 6.0 SDK or later
+- Visual Studio 2022 or later (recommended)
+- Windows 10/11 for running the WPF client
 
 ## Setup Instructions
 
 ### Backend Setup
+
 1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
 
-2. Create a virtual environment (recommended):
+2. Restore NuGet packages:
    ```bash
-   python -m venv venv
+   dotnet restore
    ```
 
-3. Activate the virtual environment:
-   - Windows (CMD):
-     ```bash
-     venv\Scripts\activate
-     ```
-   - Windows (PowerShell):
-     ```powershell
-     .\venv\Scripts\Activate.ps1
-     ```
-
-4. Install required packages:
+3. Build the project:
    ```bash
-   pip install -r requirements.txt
+   dotnet build
    ```
+
+4. Run the API:
+   ```bash
+   dotnet run
+   ```
+
+The API will start at `https://localhost:7777` and `http://localhost:5000`
+- Swagger UI will be available at `https://localhost:7777/swagger`
 
 ### Frontend Setup
-1. Open the solution in Visual Studio:
-   - Navigate to `frontend` folder
-   - Open `WpfSidebarApp.csproj`
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
 2. Restore NuGet packages:
-   - Right-click on the solution in Solution Explorer
-   - Select "Restore NuGet Packages"
-
-## Running the Application
-
-### Start the Backend Server
-1. Ensure you're in the backend directory with the virtual environment activated
-2. Run the Flask server:
    ```bash
-   python app.py
+   dotnet restore
    ```
-   The server will start on `http://localhost:5000`
 
-### Start the Frontend Application
-1. In Visual Studio, set the WPF project as the startup project
-2. Press F5 or click the "Start" button to run the application
-3. The WPF application will launch and connect to the backend server
+3. Build the project:
+   ```bash
+   dotnet build
+   ```
+
+4. Run the WPF application:
+   ```bash
+   dotnet run
+   ```
+
+## Project Structure
+
+### Backend
+```
+backend/
+├── Controllers/     # API endpoints
+├── Hubs/           # SignalR hubs for real-time communication
+├── Models/         # Data models and DTOs
+├── Services/       # Business logic and services
+├── Program.cs      # Application entry point and configuration
+└── *.json          # Sample email data files
+```
+
+### Frontend
+```
+frontend/
+├── App.xaml        # Application resources and startup
+├── MainWindow.xaml # Main application window UI
+└── *.cs           # Code-behind files
+```
+
+## API Endpoints
+
+The backend provides several API endpoints through its controllers:
+- Swagger UI provides detailed API documentation
+- Real-time updates through SignalR hub
+- Email processing and sentiment analysis endpoints
 
 ## Development
 
 ### Backend Development
-- API endpoints are defined in `app.py`
-- Model training and prediction code is in the respective modules
-- Configuration can be modified in `config.py`
+1. Open `SentimatrixAPI.csproj` in Visual Studio or your preferred IDE
+2. API endpoints are defined in the Controllers directory
+3. Real-time communication is handled through SignalR hubs
+4. Services directory contains the business logic
 
 ### Frontend Development
-- Main application window is in `MainWindow.xaml`
-- Business logic is in the corresponding `.cs` files
-- UI styling and templates are defined in XAML
+1. Open `WpfSidebarApp.csproj` in Visual Studio
+2. UI is defined in XAML files
+3. Code-behind files contain the UI logic
+4. SignalR client handles real-time updates
 
 ## Troubleshooting
 
-1. Backend Connection Issues:
-   - Ensure the Flask server is running
-   - Check if the port 5000 is not in use
-   - Verify firewall settings
+1. Backend Issues:
+   - Check if ports 7777 or 5000 are available
+   - Ensure all NuGet packages are restored
+   - Check Swagger UI for API documentation
 
-2. Frontend Build Issues:
-   - Clean and rebuild the solution
+2. Frontend Issues:
+   - Verify backend is running and accessible
+   - Check SignalR connection status
+   - Ensure .NET 6.0 runtime is installed
+
+3. Build Issues:
+   - Clean solution and rebuild
+   - Delete bin and obj folders
    - Restore NuGet packages
-   - Check Visual Studio output window for detailed errors
-
-3. Package Installation Issues:
-   - Ensure you're using the correct Python version
-   - Update pip: `python -m pip install --upgrade pip`
-   - Check for any conflicting dependencies
 
 ## Contributing
 
@@ -112,4 +149,4 @@ Sentimatrix/
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License.
