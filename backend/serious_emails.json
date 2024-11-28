@@ -1,0 +1,74 @@
+[
+  {
+    "Subject": "Product Review",
+    "Body": "Hey Samal, this is to be inform you that your product was extremely stupid ,ass but i love your productWith Lovely RegardsAditya",
+    "SenderEmail": "adityaa32078@gmail.com",
+    "SentimentScore": 61,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T12:07:07.9477985Z"
+  },
+  {
+    "Subject": "Customer Feedback",
+    "Body": "Hey admin,I don’t know what kind of top-secret operation you’ve been running, but WHY have you been off the grid for this long? Do you think I’m just sitting here, twiddling my thumbs, waiting for your grand return like some side character in your life story? NEWS FLASH: I AM THE MAIN CHARACTER TOOWith regards.",
+    "SenderEmail": "adityaa32078@gmail.com",
+    "SentimentScore": 94,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T13:36:26.3510695Z"
+  },
+  {
+    "Subject": "product review",
+    "Body": "your product is not even working properly, this is the 2nd time i have received a faulty product, this is horrible service and a scam.",
+    "SenderEmail": "ankit08044@gmail.com",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T13:36:35.7269245Z"
+  },
+  {
+    "Subject": "Bac",
+    "Body": "This product is extremely bad , it's a total scam",
+    "SenderEmail": "2@2",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T15:52:42.6958449Z"
+  },
+  {
+    "Subject": "Bac",
+    "Body": "This product is extremely bad , it's a total scam",
+    "SenderEmail": "2@2",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T15:53:06.7885122Z"
+  },
+  {
+    "Subject": "Scam",
+    "Body": "This is a complete scam seriously a complete scam",
+    "SenderEmail": "priyanshusamal1234@gmail.com",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T16:46:12.1992623Z"
+  },
+  {
+    "Subject": "Bad product shit",
+    "Body": "Absolutely shit of a product seriously complete scam",
+    "SenderEmail": "priyanshusamal1234@gmail.com",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T16:46:17.8221908Z"
+  },
+  {
+    "Subject": "Bad",
+    "Body": "Your product was extremely bad",
+    "SenderEmail": "priyanshusamal1234@gmail.com",
+    "SentimentScore": 85,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T16:46:29.6801399Z"
+  },
+  {
+    "Subject": "Faculty product",
+    "Body": "This is to inform you that the product you gave is too bad and doesn't work at all, this is a total scam and bullcrap.",
+    "SenderEmail": "priyanshusamal1234@gmail.com",
+    "SentimentScore": 100,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-11-28T16:46:35.660424Z"
+  }
+]
