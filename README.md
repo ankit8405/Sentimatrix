@@ -1,9 +1,10 @@
 # Sentimatrix
 
-A real-time email sentiment analysis application with a WPF desktop client and .NET Core backend. The application processes emails and analyzes their sentiment using advanced natural language processing.
+A real-time email sentiment analysis application built for the IIT Bombay TechFest Datamatics Hackathon. The solution combines RPA using TruBot for email processing with a modern WPF client and .NET Core backend for sentiment analysis.
 
 ## Features
 
+- Automated email processing using TruBot RPA
 - Real-time email sentiment analysis
 - Desktop client with modern WPF interface
 - SignalR for real-time updates
@@ -11,6 +12,12 @@ A real-time email sentiment analysis application with a WPF desktop client and .
 - Email content processing and analysis
 
 ## Tech Stack
+
+### RPA Automation
+- TruBot Designer for automation development
+- TruBot Cockpit Personal for bot execution
+- Email extraction and processing capabilities
+- Seamless integration with backend API
 
 ### Backend (.NET 6.0)
 - ASP.NET Core Web API
@@ -30,8 +37,23 @@ A real-time email sentiment analysis application with a WPF desktop client and .
 - .NET 6.0 SDK or later
 - Visual Studio 2022 or later (recommended)
 - Windows 10/11 for running the WPF client
+- TruBot Designer (for RPA development)
+- TruBot Cockpit Personal (for bot execution)
 
 ## Setup Instructions
+
+### TruBot Setup
+1. Install TruBot Designer and TruBot Cockpit Personal
+2. Import the provided bot project:
+   - Open TruBot Designer
+   - File > Import Project
+   - Select the `EmailProcessor` bot project
+3. Configure email settings:
+   - Update email server configurations
+   - Set credentials in secure parameters
+4. Test the bot:
+   - Run in TruBot Designer for development
+   - Deploy to TruBot Cockpit for production
 
 ### Backend Setup
 
@@ -82,6 +104,14 @@ The API will start at `https://localhost:7777` and `http://localhost:5000`
 
 ## Project Structure
 
+### RPA Components
+```
+TruBot/
+├── EmailProcessor/    # Main bot project
+├── Objects/          # Reusable automation objects
+└── Workflows/        # Email processing workflows
+```
+
 ### Backend
 ```
 backend/
@@ -101,6 +131,26 @@ frontend/
 └── *.cs           # Code-behind files
 ```
 
+## Workflow
+
+1. TruBot RPA Process:
+   - Bot monitors email inbox
+   - Extracts email content and metadata
+   - Processes attachments if present
+   - Sends data to backend API
+
+2. Backend Processing:
+   - Receives email data from RPA bot
+   - Performs sentiment analysis
+   - Broadcasts results via SignalR
+   - Stores processed data
+
+3. Frontend Display:
+   - Receives real-time updates
+   - Displays sentiment analysis results
+   - Provides interactive dashboard
+   - Shows historical data
+
 ## API Endpoints
 
 The backend provides several API endpoints through its controllers:
@@ -109,6 +159,12 @@ The backend provides several API endpoints through its controllers:
 - Email processing and sentiment analysis endpoints
 
 ## Development
+
+### RPA Development
+1. Open TruBot Designer
+2. Modify email processing workflows
+3. Test changes in development mode
+4. Deploy to TruBot Cockpit when ready
 
 ### Backend Development
 1. Open `SentimatrixAPI.csproj` in Visual Studio or your preferred IDE
@@ -124,17 +180,23 @@ The backend provides several API endpoints through its controllers:
 
 ## Troubleshooting
 
-1. Backend Issues:
+1. RPA Issues:
+   - Verify TruBot services are running
+   - Check email server connectivity
+   - Validate credentials and permissions
+   - Review bot execution logs
+
+2. Backend Issues:
    - Check if ports 7777 or 5000 are available
    - Ensure all NuGet packages are restored
    - Check Swagger UI for API documentation
 
-2. Frontend Issues:
+3. Frontend Issues:
    - Verify backend is running and accessible
    - Check SignalR connection status
    - Ensure .NET 6.0 runtime is installed
 
-3. Build Issues:
+4. Build Issues:
    - Clean solution and rebuild
    - Delete bin and obj folders
    - Restore NuGet packages
