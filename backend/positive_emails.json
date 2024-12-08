@@ -1,0 +1,26 @@
+[
+  {
+    "Subject": "Abc",
+    "Body": "This product is good",
+    "SenderEmail": "1@g",
+    "SentimentScore": 10,
+    "Response": "Thank you for your positive feedback! We're glad to hear about your experience and appreciate you taking the time to share it with us.",
+    "ProcessedAt": "2024-11-28T15:51:18.6832164Z"
+  },
+  {
+    "Subject": "Abc",
+    "Body": "This product is good",
+    "SenderEmail": "1@g",
+    "SentimentScore": 10,
+    "Response": "Thank you for your positive feedback! We're glad to hear about your experience and appreciate you taking the time to share it with us.",
+    "ProcessedAt": "2024-11-28T15:52:02.1285175Z"
+  },
+  {
+    "Subject": "Great",
+    "Body": "Your product was great",
+    "SenderEmail": "priyanshusamal1234@gmail.com",
+    "SentimentScore": 5,
+    "Response": "Thank you for your positive feedback! We're glad to hear about your experience and appreciate you taking the time to share it with us.",
+    "ProcessedAt": "2024-11-28T16:46:23.4780127Z"
+  }
+]

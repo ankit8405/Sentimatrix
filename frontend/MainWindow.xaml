@@ -1,0 +1,232 @@
+<Window x:Class="WpfSidebarApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sentimatrix - Serious Ticket Monitor" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#B0B0B0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="15,0">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E42"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Main Grid with two columns: Sidebar and Content -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#2D2D30">
+            <DockPanel>
+                <!-- Profile Section -->
+                <Border DockPanel.Dock="Top" Padding="20" BorderBrush="#404045" BorderThickness="0,0,0,1">
+                    <StackPanel>
+                        <!-- Profile Picture -->
+                        <Ellipse Width="80" Height="80" Margin="0,0,0,10">
+                            <Ellipse.Fill>
+                                <SolidColorBrush Color="#404045"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        
+                        <!-- User Name -->
+                        <TextBlock Text="Support Agent" 
+                                 Foreground="White" 
+                                 FontSize="18" 
+                                 FontWeight="Bold"
+                                 HorizontalAlignment="Center"/>
+                        
+                        <!-- Email -->
+                        <TextBlock Text="agent@support.com" 
+                                 Foreground="#B0B0B0" 
+                                 FontSize="12"
+                                 HorizontalAlignment="Center"
+                                 Margin="0,5,0,0"/>
+
+                        <!-- Connection Status -->
+                        <TextBlock x:Name="ConnectionStatus" 
+                                 Text="Connecting..." 
+                                 Foreground="#B0B0B0"
+                                 FontSize="12"
+                                 HorizontalAlignment="Center"
+                                 Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Navigation Menu -->
+                <StackPanel DockPanel.Dock="Top" Margin="0,20,0,0">
+                    <Button Style="{StaticResource NavButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📥" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="Serious Tickets"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource NavButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="Analytics"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource NavButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="Settings"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Status Text at Bottom -->
+                <TextBlock x:Name="StatusText" 
+                         Text="Ready to receive tickets" 
+                         Foreground="#B0B0B0"
+                         DockPanel.Dock="Bottom"
+                         Margin="15,10"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Content Area -->
+        <Grid Grid.Column="1" Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#FFFFFF" Padding="20,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Serious Customer Tickets" 
+                             FontSize="20" 
+                             FontWeight="SemiBold"
+                             Foreground="#333333"/>
+                             
+                    <Button Grid.Column="1" 
+                            Content="Refresh" 
+                            Click="RefreshButton_Click"
+                            Padding="15,8"
+                            Background="#007BFF"
+                            Foreground="White"
+                            BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Tickets List -->
+            <ListView x:Name="TicketsListView" 
+                     Grid.Row="1" 
+                     Background="White"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     Margin="20,10">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,10"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" 
+                                BorderBrush="#EEEEEE" 
+                                BorderThickness="1" 
+                                CornerRadius="4"
+                                Padding="15">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Header Row -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" 
+                                             Text="{Binding Subject}" 
+                                             FontWeight="SemiBold" 
+                                             FontSize="14" 
+                                             Foreground="#333333"/>
+                                    
+                                    <Border Grid.Column="1" 
+                                            Background="#FF4444" 
+                                            CornerRadius="4" 
+                                            Padding="8,4">
+                                        <TextBlock Text="{Binding SentimentScore, StringFormat='Score: {0}'}" 
+                                                 Foreground="White" 
+                                                 FontWeight="SemiBold"
+                                                 FontSize="12"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Email Body -->
+                                <TextBlock Grid.Row="1" 
+                                         Text="{Binding Body}" 
+                                         TextWrapping="Wrap" 
+                                         Margin="0,10" 
+                                         Foreground="#666666"
+                                         MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+
+                                <!-- Footer Row -->
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" 
+                                             Text="{Binding SenderEmail}" 
+                                             Foreground="#999999"
+                                             FontSize="12"/>
+                                    
+                                    <TextBlock Grid.Column="1" 
+                                             Text="{Binding ProcessedAt, StringFormat='Received: {0:g}'}" 
+                                             Foreground="#999999"
+                                             FontSize="12"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
+</Window>
