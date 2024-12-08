@@ -61,3 +61,9 @@ pip-log.txt
 # Misc
 .DS_Store
 Thumbs.db
+
+# Application settings
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+!appsettings.sample.json
