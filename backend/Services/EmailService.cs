@@ -23,6 +23,7 @@ namespace SentimatrixAPI.Services
                 _emails = database.GetCollection<Email>(settings.Value.EmailsCollectionName);
                 
                 _logger.LogInformation($"Successfully connected to MongoDB: {settings.Value.DatabaseName}");
+                Console.WriteLine("*************Connected*************");
             }
             catch (Exception ex)
             {
@@ -159,6 +160,25 @@ namespace SentimatrixAPI.Services
                 _logger.LogError($"Error removing email: {ex.Message}");
                 throw;
             }
+        }
+
+        public async Task<List<SentimentData>> GetSentimentTrend(PipelineDefinition<EmailData, SentimentData> pipeline)
+        {
+            // Implement logic to retrieve sentiment trend based on the specified pipeline
+            // This is a placeholder implementation
+            return new List<SentimentData>();
+        }
+
+        public async Task<DashboardStats> GetDashboardStats()
+        {
+            // Implement logic to retrieve dashboard statistics
+            // This is a placeholder implementation
+            return new DashboardStats();
+        }
+
+        public async Task<DashboardStats> GetDashboardStatsAsync()
+        {
+            return await GetDashboardStats();
         }
     }
 }

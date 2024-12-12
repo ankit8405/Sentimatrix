@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using SentimatrixAPI.Models;
 using SentimatrixAPI.Services;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
 
 namespace SentimatrixAPI.Controllers
 {
@@ -12,75 +15,153 @@ namespace SentimatrixAPI.Controllers
     public class EmailController : ControllerBase
     {
         private readonly EmailService _emailService;
-        private readonly GroqService _groqService;
+        private readonly ILogger<EmailController> _logger;
+        private readonly IMongoCollection<EmailData> _emailCollection;
 
-        public EmailController(EmailService emailService, GroqService groqService)
+        public EmailController(
+            EmailService emailService, 
+            ILogger<EmailController> logger, 
+            IMongoDatabase database)
         {
-            _emailService = emailService;
-            _groqService = groqService;
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _emailCollection = database.GetCollection<EmailData>("emails");
         }
 
-        [HttpPost("process")]
-        public async Task<ActionResult<Email>> ProcessEmail([FromBody] EmailData emailData)
+        [HttpGet("sentiment/{period}")]
+        public async Task<IActionResult> GetSentimentTrend(string period)
+{
+    try
+    {
+        DateTime startDate = period.ToUpper() switch
+        {
+            "1D" => DateTime.UtcNow.AddDays(-1),
+            "5D" => DateTime.UtcNow.AddDays(-5),
+            "1W" => DateTime.UtcNow.AddDays(-7),
+            "1M" => DateTime.UtcNow.AddMonths(-1),
+            _ => throw new ArgumentException("Invalid time period")
+        };
+
+        var results = await _emailCollection
+            .Aggregate()
+            .Match(Builders<EmailData>.Filter.Gte(e => e.ReceivedDate, startDate))
+            .Group(e => e.ReceivedDate.Date, 
+                g => new SentimentData 
+                {
+                    Period = g.Key.ToString("yyyy-MM-dd"),
+                    AverageScore = g.Average(x => x.Score),
+                    Count = g.Count()
+                })
+            .Sort(Builders<SentimentData>.Sort.Ascending(x => x.Period))
+            .ToListAsync();
+
+        return Ok(results);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving sentiment trend");
+        return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+    }
+}
+
+        [HttpGet("positive")]
+        public async Task<ActionResult<IEnumerable<EmailData>>> GetPositiveEmails(
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                if (string.IsNullOrEmpty(emailData.Body))
-                {
-                    return BadRequest("Email body cannot be empty");
-                }
+                var emails = await _emailService.GetEmailsByScoreRangeAsync(70, 100);
+                var paginatedEmails = emails
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
 
-                // Analyze sentiment using Groq
-                var sentimentScore = await _groqService.AnalyzeSentiment(emailData.Body);
-                
-                // Create new email document
-                var email = new Email
-                {
-                    Body = emailData.Body,
-                    Score = sentimentScore,
-                    Sender = emailData.SenderEmail ?? "",
-                    Receiver = emailData.ReceiverEmail ?? "",
-                    Type = sentimentScore <= 50 ? "positive" : "negative",
-                    Time = DateTime.UtcNow
-                };
-
-                // Save to MongoDB
-                await _emailService.CreateAsync(email);
-
-                return Ok(email);
+                return Ok(new 
+                { 
+                    Data = paginatedEmails, 
+                    Page = page, 
+                    PageSize = pageSize,
+                    TotalCount = emails.Count()
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                _logger.LogError(ex, "Error retrieving positive emails");
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
             }
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<Email>>> GetAllEmails()
-        {
-            var emails = await _emailService.GetAsync();
-            return Ok(emails);
-        }
-
-        [HttpGet("positive")]
-        public async Task<ActionResult<List<Email>>> GetPositiveEmails()
-        {
-            var emails = await _emailService.GetPositiveEmailsAsync();
-            return Ok(emails);
-        }
-
         [HttpGet("negative")]
-        public async Task<ActionResult<List<Email>>> GetNegativeEmails()
+        public async Task<ActionResult<IEnumerable<EmailData>>> GetNegativeEmails(
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 10)
         {
-            var emails = await _emailService.GetNegativeEmailsAsync();
-            return Ok(emails);
+            try
+            {
+                var emails = await _emailService.GetEmailsByScoreRangeAsync(0, 30);
+                var paginatedEmails = emails
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return Ok(new 
+                { 
+                    Data = paginatedEmails, 
+                    Page = page, 
+                    PageSize = pageSize,
+                    TotalCount = emails.Count()
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving negative emails");
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+            }
         }
 
         [HttpGet("sender/{email}")]
-        public async Task<ActionResult<List<Email>>> GetEmailsBySender(string email)
+        public async Task<ActionResult<IEnumerable<EmailData>>> GetEmailsBySender(
+            string email, 
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 10)
         {
-            var emails = await _emailService.GetEmailsBySenderAsync(email);
-            return Ok(emails);
+            try
+            {
+                var emails = await _emailService.GetEmailsBySenderAsync(email);
+                var paginatedEmails = emails
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return Ok(new 
+                { 
+                    Data = paginatedEmails, 
+                    Page = page, 
+                    PageSize = pageSize,
+                    TotalCount = emails.Count()
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving emails by sender");
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+            }
+        }
+
+        [HttpGet("stats")]
+        public async Task<ActionResult<DashboardStats>> GetDashboardStats()
+        {
+            try
+            {
+                var stats = await _emailService.GetDashboardStatsAsync();
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving dashboard stats");
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+            }
         }
     }
 }

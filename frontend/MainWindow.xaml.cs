@@ -30,7 +30,7 @@ namespace WpfSidebarApp
             
             // Initialize SignalR connection
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/tickethub")
+                .WithUrl("http://localhost:5000/ticketHub")
                 .Build();
 
             // Set up SignalR event handlers
