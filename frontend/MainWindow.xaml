@@ -4,55 +4,120 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Sentimatrix Dashboard" Height="800" Width="1200"
-        Background="#F5F5F5">
+        Title="Sentimatrix" Height="900" Width="1400"
+        Background="#121212">
     
     <Window.Resources>
+        <!-- Modern Card Style -->
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Margin" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2C2C2C"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.2"/>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="2" Color="#0A000000" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#4CAF50"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="2" Color="#0A4CAF50" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
+        <!-- Modern Header Text Style -->
         <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Sidebar Button Style -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#B0B0B0"/>
+            <Setter Property="Margin" Value="15,8"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background" Value="#2C2C2C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Modern Table Style -->
+        <Style x:Key="TableStyle" TargetType="DataGrid">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2C2C2C"/>
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="AlternatingRowBackground" Value="#171717"/>
+            <Setter Property="RowBackground" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="ColumnHeaderStyle">
+                <Setter.Value>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#1E1E1E"/>
+                        <Setter Property="Foreground" Value="#B0B0B0"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CellStyle">
+                <Setter.Value>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#B0B0B0"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="280"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Sidebar -->
-        <Border Background="#1a237e" Grid.Column="0">
+        <Border Background="#0E0E0E" Grid.Column="0">
             <StackPanel>
-                <TextBlock Text="Sentimatrix" FontSize="24" Foreground="White" Margin="20,20,20,40" FontWeight="Bold"/>
+                <TextBlock Text="Sentimatrix" 
+                           FontSize="28" 
+                           Foreground="#E0E0E0" 
+                           Margin="25,25,25,50" 
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"/>
                 
-                <Button x:Name="DashboardButton" Content="Dashboard" Margin="10,5" Height="40" Background="Transparent" BorderThickness="0"
-                        Foreground="White" Click="DashboardButton_Click"/>
-                <Button x:Name="AnalyticsButton" Content="Analytics" Margin="10,5" Height="40" Background="Transparent" BorderThickness="0"
-                        Foreground="White" Click="AnalyticsButton_Click"/>
-                <Button x:Name="EmailsButton" Content="All Emails" Margin="10,5" Height="40" Background="Transparent" BorderThickness="0"
-                        Foreground="White" Click="EmailsButton_Click"/>
-                <Button x:Name="SettingsButton" Content="Settings" Margin="10,5" Height="40" Background="Transparent" BorderThickness="0"
-                        Foreground="White" Click="SettingsButton_Click"/>
+                <Button Content="Dashboard" 
+                        Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="Analytics" 
+                        Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="All Emails" 
+                        Style="{StaticResource SidebarButtonStyle}" 
+                        Click="AllEmailsButton_Click" />
+                <Button Content="Settings" 
+                        Style="{StaticResource SidebarButtonStyle}" />
             </StackPanel>
         </Border>
 
         <!-- Main Content -->
-        <ScrollViewer Grid.Column="1" Padding="20">
+        <ScrollViewer Grid.Column="1" Padding="20" Background="#121212">
             <Grid x:Name="MainContent">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -63,29 +128,50 @@
                 <!-- Top Stats -->
                 <WrapPanel Grid.Row="0">
                     <!-- Total Emails Card -->
-                    <Border Style="{StaticResource CardStyle}" Width="280">
+                    <Border Style="{StaticResource CardStyle}" Width="320">
                         <StackPanel>
                             <TextBlock Text="Total Emails" Style="{StaticResource HeaderTextStyle}"/>
-                            <TextBlock x:Name="TotalEmailsText" Text="0" FontSize="32" FontWeight="Bold"/>
-                            <TextBlock x:Name="TotalEmailsChange" Text="+0% from last week" FontSize="12" Foreground="#666"/>
+                            <TextBlock x:Name="TotalEmailsText" 
+                                       Text="0" 
+                                       FontSize="36" 
+                                       FontWeight="Bold" 
+                                       Foreground="#E0E0E0"/>
+                            <TextBlock x:Name="TotalEmailsChange" 
+                                       Text="+0% from last week" 
+                                       FontSize="14" 
+                                       Foreground="#888888"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Positive Ratio Card -->
-                    <Border Style="{StaticResource CardStyle}" Width="280">
+                    <Border Style="{StaticResource CardStyle}" Width="320">
                         <StackPanel>
                             <TextBlock Text="Positive Ratio" Style="{StaticResource HeaderTextStyle}"/>
-                            <TextBlock x:Name="PositiveRatioText" Text="0%" FontSize="32" FontWeight="Bold" Foreground="#4CAF50"/>
-                            <TextBlock x:Name="PositiveRatioChange" Text="+0% from last week" FontSize="12" Foreground="#666"/>
+                            <TextBlock x:Name="PositiveRatioText" 
+                                       Text="0%" 
+                                       FontSize="36" 
+                                       FontWeight="Bold" 
+                                       Foreground="#4CAF50"/>
+                            <TextBlock x:Name="PositiveRatioChange" 
+                                       Text="+0% from last week" 
+                                       FontSize="14" 
+                                       Foreground="#888888"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Average Score Card -->
-                    <Border Style="{StaticResource CardStyle}" Width="280">
+                    <Border Style="{StaticResource CardStyle}" Width="320">
                         <StackPanel>
                             <TextBlock Text="Average Score" Style="{StaticResource HeaderTextStyle}"/>
-                            <TextBlock x:Name="AverageScoreText" Text="0" FontSize="32" FontWeight="Bold" Foreground="#2196F3"/>
-                            <TextBlock x:Name="AverageScoreChange" Text="+0 from last week" FontSize="12" Foreground="#666"/>
+                            <TextBlock x:Name="AverageScoreText" 
+                                       Text="0" 
+                                       FontSize="36" 
+                                       FontWeight="Bold" 
+                                       Foreground="#2196F3"/>
+                            <TextBlock x:Name="AverageScoreChange" 
+                                       Text="+0 from last week" 
+                                       FontSize="14" 
+                                       Foreground="#888888"/>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -101,7 +187,7 @@
                     <Border Style="{StaticResource CardStyle}" Grid.Column="0">
                         <StackPanel>
                             <TextBlock Text="Sentiment Trend" Style="{StaticResource HeaderTextStyle}"/>
-                            <lvc:CartesianChart x:Name="SentimentTrendChart" Height="300"/>
+                            <lvc:CartesianChart x:Name="SentimentTrendChart" Height="350"/>
                         </StackPanel>
                     </Border>
 
@@ -109,7 +195,7 @@
                     <Border Style="{StaticResource CardStyle}" Grid.Column="1">
                         <StackPanel>
                             <TextBlock Text="Email Volume" Style="{StaticResource HeaderTextStyle}"/>
-                            <lvc:CartesianChart x:Name="EmailVolumeChart" Height="300"/>
+                            <lvc:CartesianChart x:Name="EmailVolumeChart" Height="350"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -118,8 +204,11 @@
                 <Border Style="{StaticResource CardStyle}" Grid.Row="2">
                     <StackPanel>
                         <TextBlock Text="Recent Emails" Style="{StaticResource HeaderTextStyle}"/>
-                        <DataGrid x:Name="RecentEmailsGrid" AutoGenerateColumns="False" IsReadOnly="True" Height="300"
-                                  BorderThickness="1" BorderBrush="#ddd" Background="White">
+                        <DataGrid x:Name="RecentEmailsGrid" 
+                                  AutoGenerateColumns="False" 
+                                  IsReadOnly="True" 
+                                  Height="350"
+                                  Style="{StaticResource TableStyle}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="150"/>
                                 <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="200"/>

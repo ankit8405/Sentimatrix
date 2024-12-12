@@ -229,6 +229,13 @@ namespace WpfSidebarApp
         {
             // TODO: Implement settings view
         }
+
+        private void AllEmailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            AllEmailsWindow allEmailsWindow = new AllEmailsWindow();
+            allEmailsWindow.Show();
+            this.Close();
+        }
     }
 
     public class Email
