@@ -25,7 +25,9 @@ namespace SentimatrixAPI.Controllers
         {
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _emailCollection = database.GetCollection<EmailData>("emails");
+            _emailCollection = database.GetCollection<EmailData>("email");
+            // Log a message indicating successful connection
+            _logger.LogInformation("Successfully connected to the Email database.");
         }
 
         [HttpGet("sentiment/{period}")]
@@ -63,6 +65,21 @@ namespace SentimatrixAPI.Controllers
         return StatusCode(500, new { message = "Internal server error", details = ex.Message });
     }
 }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EmailData>>> GetAllEmails()
+        {
+            try
+            {
+                var emails = await _emailCollection.Find(new BsonDocument()).ToListAsync();
+                return Ok(emails);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all emails");
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+            }
+        }
 
         [HttpGet("positive")]
         public async Task<ActionResult<IEnumerable<EmailData>>> GetPositiveEmails(

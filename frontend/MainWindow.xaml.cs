@@ -111,7 +111,7 @@ namespace WpfSidebarApp
             try
             {
                 // Fetch all emails
-                var response = await _httpClient.GetStringAsync($"{_apiBaseUrl}/Email");
+                var response = await _httpClient.GetStringAsync($"{_apiBaseUrl}/email");
                 var emails = JsonConvert.DeserializeObject<List<Email>>(response);
 
                 if (emails == null || !emails.Any())

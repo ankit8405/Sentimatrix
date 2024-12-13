@@ -5,6 +5,8 @@ using SentimatrixAPI.Services;
 using SentimatrixAPI.Data;
 using Microsoft.OpenApi.Models;
 using SentimatrixAPI.Hubs;
+using MongoDB.Driver;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,20 @@ builder.Services.Configure<MongoDBSettings>(
     builder.Configuration.GetSection("MongoDBSettings"));
 
 builder.Services.AddSingleton<EmailService>();
+
+// Register MongoClient and IMongoDatabase
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName);
+});
 
 // Configure CORS
 builder.Services.AddCors(options =>
