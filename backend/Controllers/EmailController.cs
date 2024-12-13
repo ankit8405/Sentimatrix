@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using SentimatrixAPI.Models;
 using SentimatrixAPI.Services;
+using Microsoft.Extensions.Options;
+using SentimatrixAPI.Data;
 
 namespace SentimatrixAPI.Controllers
 {
@@ -21,12 +23,12 @@ namespace SentimatrixAPI.Controllers
         public EmailController(
             EmailService emailService, 
             ILogger<EmailController> logger, 
-            IMongoDatabase database)
+            IMongoDatabase database,
+            IOptions<MongoDBSettings> settings)
         {
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _emailCollection = database.GetCollection<EmailData>("email");
-            // Log a message indicating successful connection
+            _emailCollection = database.GetCollection<EmailData>(settings.Value.EmailsCollectionName);
             _logger.LogInformation("Successfully connected to the Email database.");
         }
 
@@ -71,7 +73,11 @@ namespace SentimatrixAPI.Controllers
         {
             try
             {
-                var emails = await _emailCollection.Find(new BsonDocument()).ToListAsync();
+                _logger.LogInformation("Getting all emails");
+                var emails = await _emailCollection.Find(new BsonDocument())
+                                                 .SortByDescending(e => e.ReceivedDate)
+                                                 .ToListAsync();
+                _logger.LogInformation($"Found {emails.Count} emails");
                 return Ok(emails);
             }
             catch (Exception ex)
