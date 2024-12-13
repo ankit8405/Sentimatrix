@@ -70,5 +70,13 @@
     "SentimentScore": 100,
     "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
     "ProcessedAt": "2024-11-28T16:46:35.660424Z"
+  },
+  {
+    "Subject": "Urgent: Server Issues",
+    "Body": "The production server is down and customers are complaining. This is a critical issue that needs immediate attention!",
+    "SenderEmail": "bob@example.com",
+    "SentimentScore": 80,
+    "Response": "We apologize for any inconvenience you've experienced. Your feedback is important to us, and we will look into this matter immediately. A representative will contact you shortly to address your concerns.",
+    "ProcessedAt": "2024-12-08T13:51:41.2117067Z"
   }
 ]

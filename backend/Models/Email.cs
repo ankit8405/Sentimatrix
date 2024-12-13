@@ -1,9 +1,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace SentimatrixAPI.Models
 {
-    public class EmailData
+    public class Email
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -12,22 +13,24 @@ namespace SentimatrixAPI.Models
         [BsonElement("body")]
         public string Body { get; set; } = string.Empty;
 
-        [BsonElement("subject")]
-        public string Subject { get; set; } = string.Empty;
-
-        [BsonElement("sender")]
-        public string SenderEmail { get; set; } = string.Empty;
-
-        [BsonElement("receiver")]
-        public string ReceiverEmail { get; set; } = string.Empty;
-
         [BsonElement("score")]
         public int Score { get; set; }
 
+        [BsonElement("sender")]
+        public string Sender { get; set; } = string.Empty;
+
+        [BsonElement("receiver")]
+        public string Receiver { get; set; } = string.Empty;
+
         [BsonElement("type")]
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;  // "positive" or "negative"
 
         [BsonElement("time")]
-        public DateTime ReceivedDate { get; set; } = DateTime.UtcNow;
+        public DateTime Time { get; set; }
+
+        public Email()
+        {
+            Time = DateTime.UtcNow;
+        }
     }
 }

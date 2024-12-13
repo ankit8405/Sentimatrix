@@ -21,17 +21,20 @@ namespace SentimatrixAPI.Controllers
         private readonly ILogger<EmailProcessController> _logger;
         private readonly GroqService _groqService;
         private readonly IHubContext<TicketHub> _hubContext;
+        private readonly EmailService _emailService;
         private const string SERIOUS_EMAILS_PATH = "serious_emails.json";
         private const string POSITIVE_EMAILS_PATH = "positive_emails.json";
 
         public EmailProcessController(
             ILogger<EmailProcessController> logger,
             GroqService groqService,
-            IHubContext<TicketHub> hubContext)
+            IHubContext<TicketHub> hubContext,
+            EmailService emailService)
         {
             _logger = logger;
             _groqService = groqService;
             _hubContext = hubContext;
+            _emailService = emailService;
         }
 
         /// <summary>
@@ -66,7 +69,22 @@ namespace SentimatrixAPI.Controllers
                 int sentimentScore = await _groqService.AnalyzeSentiment(plainTextBody);
                 string response = _groqService.GenerateResponse(sentimentScore, plainTextBody);
 
-                var processedEmail = new ProcessedEmail
+                // Create email document for MongoDB
+                var email = new Email
+                {
+                    Body = plainTextBody,
+                    Score = sentimentScore,
+                    Sender = emailData.SenderEmail ?? string.Empty,
+                    Receiver = emailData.ReceiverEmail ?? string.Empty,
+                    Type = sentimentScore <= 60 ? "positive" : "negative",
+                    Time = DateTime.UtcNow
+                };
+
+                // Store in MongoDB
+                await _emailService.CreateAsync(email);
+
+                // Store in local JSON files for backward compatibility
+                await StoreEmail(new ProcessedEmail
                 {
                     Subject = emailData.Subject ?? string.Empty,
                     Body = plainTextBody,
@@ -74,15 +92,12 @@ namespace SentimatrixAPI.Controllers
                     SentimentScore = sentimentScore,
                     Response = response,
                     ProcessedAt = DateTime.UtcNow
-                };
+                });
 
-                // Store email based on sentiment
-                await StoreEmail(processedEmail);
-
-                // If sentiment score is high (negative), notify all connected clients about the new serious ticket
+                // If sentiment score is high (negative), notify all connected clients
                 if (sentimentScore > 60)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveSeriousTicket", processedEmail);
+                    await _hubContext.Clients.All.SendAsync("ReceiveSeriousTicket", email);
                 }
 
                 return Ok(new EmailProcessResponse
@@ -91,9 +106,9 @@ namespace SentimatrixAPI.Controllers
                     Message = response,
                     Data = new EmailResponseData 
                     {
-                        Subject = processedEmail.Subject,
-                        Body = processedEmail.Body,
-                        SenderEmail = processedEmail.SenderEmail,
+                        Subject = emailData.Subject,
+                        Body = plainTextBody,
+                        SenderEmail = emailData.SenderEmail,
                         SentimentScore = sentimentScore,
                         Response = response
                     }
@@ -119,22 +134,12 @@ namespace SentimatrixAPI.Controllers
         /// <response code="200">Returns the list of serious tickets when successful</response>
         /// <response code="500">If there's an error retrieving the tickets</response>
         [HttpGet("serious-tickets")]
-        public IActionResult GetSeriousTickets()
+        public async Task<IActionResult> GetSeriousTickets()
         {
             try
             {
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "serious_emails.json");
-                if (!System.IO.File.Exists(filePath))
-                {
-                    return Ok(new List<ProcessedEmail>());
-                }
-
-                string jsonContent = System.IO.File.ReadAllText(filePath);
-                var tickets = JsonConvert.DeserializeObject<List<ProcessedEmail>>(jsonContent) ?? new List<ProcessedEmail>();
-                
-                // Sort by most recent first
-                tickets = tickets.OrderByDescending(t => t.ProcessedAt).ToList();
-                
+                // Get negative emails from MongoDB
+                var tickets = await _emailService.GetNegativeEmailsAsync();
                 return Ok(tickets);
             }
             catch (Exception ex)

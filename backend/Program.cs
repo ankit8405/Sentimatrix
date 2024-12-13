@@ -1,6 +1,12 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using SentimatrixAPI.Services;
+using SentimatrixAPI.Data;
+using Microsoft.OpenApi.Models;
 using SentimatrixAPI.Hubs;
+using MongoDB.Driver;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,35 +27,54 @@ builder.Services.AddSignalR();
 // Register GroqService
 builder.Services.AddSingleton<GroqService>();
 
+// Add MongoDB Settings
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDBSettings"));
+
+builder.Services.AddSingleton<EmailService>();
+
+// Register MongoClient and IMongoDatabase
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName);
+});
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddDefaultPolicy(builder =>
     {
-        builder.AllowAnyHeader()
+        builder.AllowAnyOrigin()
                .AllowAnyMethod()
-               .SetIsOriginAllowed((host) => true)
-               .AllowCredentials();
+               .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// Enable Swagger for all environments
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sentimatrix API V1");
-    c.RoutePrefix = "swagger";
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sentimatrix API V1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
-// Use CORS before routing
-app.UseCors("AllowAll");
-
+app.UseHttpsRedirection();
+app.UseCors();
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapControllers();
 app.MapHub<TicketHub>("/ticketHub");
 
