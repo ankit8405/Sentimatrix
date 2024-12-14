@@ -10,6 +10,7 @@ using LiveCharts.Wpf;
 using System.Windows.Media;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using WpfSidebarApp.Models;  // Add this at the top
 
 namespace WpfSidebarApp
 {
@@ -36,10 +37,11 @@ namespace WpfSidebarApp
             // Set up SignalR event handlers
             _hubConnection.On<Email>("ReceiveSeriousTicket", (email) =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    UpdateDashboard();
-                    ShowNotification($"New serious ticket from {email.Sender}");
+                    Console.WriteLine($"Received serious ticket from: {email.SenderEmail}");
+                    await UpdateDashboard();
+                    ShowNotification($"New serious ticket from {email.SenderEmail ?? "Unknown Sender"}");
                 });
             });
 
@@ -51,7 +53,11 @@ namespace WpfSidebarApp
             {
                 Interval = TimeSpan.FromSeconds(30)
             };
-            _refreshTimer.Tick += async (s, e) => await UpdateDashboard();
+            _refreshTimer.Tick += async (s, e) => 
+            {
+                Console.WriteLine("Timer tick - updating dashboard");  // Debug log
+                await UpdateDashboard();
+            };
             _refreshTimer.Start();
 
             // Initial load
@@ -98,10 +104,12 @@ namespace WpfSidebarApp
             try
             {
                 await _hubConnection.StartAsync();
+                Console.WriteLine("Connected to SignalR hub");  // Debug log
                 ShowNotification("Connected to real-time updates");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"SignalR connection error: {ex.Message}");  // Debug log
                 ShowNotification($"Connection error: {ex.Message}");
             }
         }
@@ -110,12 +118,22 @@ namespace WpfSidebarApp
         {
             try
             {
+                // Add logging to debug
+                Console.WriteLine("Fetching emails from API...");
+                
                 // Fetch all emails
                 var response = await _httpClient.GetStringAsync($"{_apiBaseUrl}/email");
+                Console.WriteLine($"API Response: {response}");  // Debug log
+                
                 var emails = JsonConvert.DeserializeObject<List<Email>>(response);
 
                 if (emails == null || !emails.Any())
+                {
+                    Console.WriteLine("No emails found or deserialization failed");
                     return;
+                }
+
+                Console.WriteLine($"Found {emails.Count} emails");  // Debug log
 
                 // Update stats
                 UpdateStats(emails);
@@ -128,23 +146,29 @@ namespace WpfSidebarApp
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error updating dashboard: {ex.Message}");  // Debug log
                 ShowNotification($"Error updating dashboard: {ex.Message}");
             }
         }
 
         private void UpdateStats(List<Email> emails)
         {
+            try
+            {
             // Total emails
             TotalEmailsText.Text = emails.Count.ToString();
+                Console.WriteLine($"Updated total emails: {emails.Count}");
 
             // Positive ratio
-            var positiveCount = emails.Count(e => e.Type == "positive");
-            var positiveRatio = (double)positiveCount / emails.Count * 100;
+                var positiveCount = emails.Count(e => e.Type?.ToLower() == "positive");
+                var positiveRatio = emails.Any() ? (double)positiveCount / emails.Count * 100 : 0;
             PositiveRatioText.Text = $"{positiveRatio:F1}%";
+                Console.WriteLine($"Updated positive ratio: {positiveRatio:F1}%");
 
             // Average score
-            var averageScore = emails.Average(e => e.Score);
+                var averageScore = emails.Any() ? emails.Average(e => e.Score) : 0;
             AverageScoreText.Text = $"{averageScore:F1}";
+                Console.WriteLine($"Updated average score: {averageScore:F1}");
 
             // Calculate changes from last week
             var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -152,7 +176,7 @@ namespace WpfSidebarApp
             
             if (oldEmails.Any())
             {
-                var oldPositiveRatio = (double)oldEmails.Count(e => e.Type == "positive") / oldEmails.Count * 100;
+                    var oldPositiveRatio = (double)oldEmails.Count(e => e.Type?.ToLower() == "positive") / oldEmails.Count * 100;
                 var oldAverageScore = oldEmails.Average(e => e.Score);
 
                 var ratioChange = positiveRatio - oldPositiveRatio;
@@ -160,6 +184,11 @@ namespace WpfSidebarApp
 
                 PositiveRatioChange.Text = $"{(ratioChange >= 0 ? "+" : "")}{ratioChange:F1}% from last week";
                 AverageScoreChange.Text = $"{(scoreChange >= 0 ? "+" : "")}{scoreChange:F1} from last week";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating stats: {ex.Message}");
             }
         }
 
@@ -236,16 +265,5 @@ namespace WpfSidebarApp
             allEmailsWindow.Show();
             this.Close();
         }
-    }
-
-    public class Email
-    {
-        public string Id { get; set; }
-        public string Body { get; set; }
-        public int Score { get; set; }
-        public string Sender { get; set; }
-        public string Receiver { get; set; }
-        public string Type { get; set; }
-        public DateTime Time { get; set; }
     }
 }
