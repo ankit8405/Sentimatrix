@@ -149,6 +149,12 @@ namespace SentimatrixAPI.Controllers
             }
         }
 
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "API is working!" });
+        }
+
         private string ConvertHtmlToPlainText(string html)
         {
             if (string.IsNullOrEmpty(html)) return string.Empty;
@@ -188,6 +194,118 @@ namespace SentimatrixAPI.Controllers
             emails.Add(email);
             string updatedJson = JsonConvert.SerializeObject(emails, Formatting.Indented);
             await System.IO.File.WriteAllTextAsync(filePath, updatedJson);
+        }
+
+        [HttpPost("trubot")]
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> ProcessTrubotEmail([FromForm] TrubotEmailRequest emailData)
+        {
+            try
+            {
+                if (emailData == null)
+                {
+                    return BadRequest(new { message = "Email data is required" });
+                }
+
+                _logger.LogInformation($"Processing TruBot email from: {emailData.senderEmail}");
+
+                // Create EmailData object from TruBot request
+                var email = new EmailData
+                {
+                    Subject = emailData.subject ?? string.Empty,
+                    Body = emailData.body ?? string.Empty,
+                    SenderEmail = emailData.senderEmail ?? string.Empty,
+                    ReceiverEmail = "support@company.com",
+                    Score = 0, // Will be updated by sentiment analysis
+                    Type = "pending",
+                    ReceivedDate = DateTime.UtcNow
+                };
+
+                // Process the email using existing logic
+                var plainTextBody = ConvertHtmlToPlainText(email.Body);
+                
+                // Analyze sentiment using Groq
+                int sentimentScore = await _groqService.AnalyzeSentiment(plainTextBody);
+                
+                // Update email with sentiment score and type
+                email.Score = sentimentScore;
+                email.Type = sentimentScore > 60 ? "negative" : "positive";
+
+                // Log before storing
+                _logger.LogInformation($"Storing email: Subject={email.Subject}, Sender={email.SenderEmail}, Score={email.Score}");
+
+                // Store in MongoDB
+                await _emailService.CreateAsync(new Email
+                {
+                    Body = plainTextBody,
+                    Score = sentimentScore,
+                    Sender = email.SenderEmail,
+                    Receiver = email.ReceiverEmail,
+                    Type = email.Type,
+                    Time = DateTime.UtcNow
+                });
+
+                // If sentiment score is high (negative), notify connected clients
+                if (sentimentScore > 60)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceiveSeriousTicket", email);
+                }
+
+                return Ok(new
+                {
+                    status = "Success",
+                    message = "Email processed successfully",
+                    sentimentScore = sentimentScore,
+                    type = email.Type
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing TruBot email: {ex.Message}");
+                return StatusCode(500, new { message = "Failed to process email", error = ex.Message });
+            }
+        }
+
+        [HttpPost("test-trubot")]
+        [Consumes("application/x-www-form-urlencoded")]
+        public IActionResult TestTrubotEmail([FromForm] TrubotEmailRequest emailData)
+        {
+            try
+            {
+                _logger.LogInformation("=== TEST ENDPOINT - Received TruBot Data ===");
+                _logger.LogInformation($"Subject: {emailData.subject}");
+                _logger.LogInformation($"Body: {emailData.body}");
+                _logger.LogInformation($"Sender Email: {emailData.senderEmail}");
+                _logger.LogInformation("=== RAW FORM DATA ===");
+                
+                // Log all form data received
+                foreach (var key in Request.Form.Keys)
+                {
+                    _logger.LogInformation($"{key}: {Request.Form[key]}");
+                }
+
+                return Ok(new
+                {
+                    message = "Test endpoint - Data received",
+                    receivedData = new
+                    {
+                        subject = emailData.subject,
+                        body = emailData.body,
+                        senderEmail = emailData.senderEmail
+                    },
+                    rawFormData = Request.Form.ToDictionary(x => x.Key, x => x.Value.ToString())
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in test endpoint: {ex.Message}");
+                return StatusCode(500, new 
+                { 
+                    message = "Error in test endpoint", 
+                    error = ex.Message,
+                    stackTrace = ex.StackTrace 
+                });
+            }
         }
     }
 }

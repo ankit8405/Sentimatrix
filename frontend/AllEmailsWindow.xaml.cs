@@ -1,28 +1,48 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using WpfSidebarApp.Models;
 
 namespace WpfSidebarApp
 {
     public partial class AllEmailsWindow : Window
     {
+        private readonly HttpClient _httpClient;
+        private readonly string _apiBaseUrl = "http://localhost:5000/api";
         public ObservableCollection<Email> Emails { get; set; }
 
         public AllEmailsWindow()
         {
             InitializeComponent();
-            LoadEmails();
-            EmailsGrid.ItemsSource = Emails;
+            _httpClient = new HttpClient();
+            Emails = new ObservableCollection<Email>();
+            LoadEmailsAsync();
         }
 
-        private void LoadEmails()
+        private async Task LoadEmailsAsync()
         {
-            // Sample data for demonstration
-            Emails = new ObservableCollection<Email>
+            try
             {
-                new Email { Sender = "example1@example.com", Receiver = "example1@example.com", Score = 5, Body = "This is a sample email body 1." },
-                new Email { Sender = "example2@example.com", Receiver = "example2@example.com", Score = 3, Body = "This is a sample email body 2." },
-                new Email { Sender = "example3@example.com", Receiver = "example3@example.com", Score = 4, Body = "This is a sample email body 3." }
-            };
+                var response = await _httpClient.GetStringAsync($"{_apiBaseUrl}/email");
+                var emailList = JsonConvert.DeserializeObject<List<Email>>(response);
+                
+                Emails.Clear();
+                foreach (var email in emailList.OrderByDescending(e => e.Time))
+                {
+                    Emails.Add(email);
+                }
+                
+                EmailsGrid.ItemsSource = Emails;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading emails: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void DashboardButton_Click(object sender, RoutedEventArgs e)

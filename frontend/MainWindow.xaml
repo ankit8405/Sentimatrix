@@ -211,7 +211,7 @@
                                   Style="{StaticResource TableStyle}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="150"/>
-                                <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="200"/>
+                                <DataGridTextColumn Header="Sender" Binding="{Binding SenderEmail}" Width="200"/>
                                 <DataGridTextColumn Header="Score" Binding="{Binding Score}" Width="100"/>
                                 <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
                                 <DataGridTextColumn Header="Body" Binding="{Binding Body}" Width="*"/>
